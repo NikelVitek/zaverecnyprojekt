@@ -19,125 +19,155 @@ int btn2state = 0;
 int btn3state = 0;
 int btn4state = 0;
 
-Adafruit_ILI9341 TFT = Adafruit_ILI9341(TFT_CS, TFT_DC, TFT_MOSI, TFT_CLK, TFT_RST, TFT_MISO); 
+Adafruit_ILI9341 TFT = Adafruit_ILI9341(TFT_CS, TFT_DC, TFT_MOSI, TFT_CLK, TFT_RST, TFT_MISO);
 
 void setup() {
   Serial.begin(9600);
-  for(int j = 45; j >= 42; j--) {
+  for (int j = 45; j >= 42; j--) {
     pinMode(j, INPUT);
   }
-
-
-  // Initialize food position
-  placeFood();
+  randomSeed(analogRead(0));
   TFT.begin();
+  TFT.setRotation(1);
   TFT.fillScreen(ILI9341_BLACK);
 }
 
 void loop() {
-  menu_start(); // Start the menu
+  menu_start();
 }
 
 void menu_start() {
-  TFT.setRotation(1);
+  TFT.fillScreen(ILI9341_BLACK);
   TFT.setCursor(120, 120);
   TFT.println("Press Button");
 
-  // Wait for a button press and start the corresponding game
   while (true) {
     btn1state = digitalRead(btn1);
     btn2state = digitalRead(btn2);
     btn3state = digitalRead(btn3);
     
     if (btn1state == HIGH) {
-      game1_start(); // Start game 1
-      break; // Exit the menu
+      game1_start();
+      break;
     }
     if (btn2state == HIGH) {
-      game2_start(); // Start game 2
-      break; // Exit the menu
+      game2_start();
+      break;
     }
     if (btn3state == HIGH) {
-      game3_start(); // Start game 3
-      break; // Exit the menu
+      game3_start();
+      break;
     }
   }
 }
 
-int snakeX[100]; // Array for the snake's x coordinates
-int snakeY[100]; // Array for the snake's y coordinates
-int snakeLength = 3; // Initial snake length
-int direction = 1; // Direction: 1 = Right, 2 = Down, 3 = Left, 4 = Up
+int snakeX[1000];
+int snakeY[1000];
+int snakeLength = 3;
+int direction = 1;
 int gridSize = 5;
-int foodX, foodY; // Food coordinates
+int foodX, foodY;
 
 void game1_start() {
-  snakeX[0] = 160; // Starting X position (middle of screen)
-  snakeY[0] = 120; // Starting Y position (middle of screen)
+  TFT.setTextColor(ILI9341_BLACK);
+  TFT.setCursor(120, 120);
+  TFT.println("Press Button");
+  drawFood();
+  snakeX[0] = 160;
+  snakeY[0] = 120;
   snakeX[1] = 150;
   snakeY[1] = 120;
   snakeX[2] = 140;
   snakeY[2] = 120;
-while (true) {
-    // Read button states
-    btn1state = digitalRead(btn1); // Up
-    btn2state = digitalRead(btn2); // Down
-    btn3state = digitalRead(btn3); // Left
-    btn4state = digitalRead(btn4); // Right
+  
+  unsigned long lastDirectionChangeTime = 500;
+  unsigned long debounceDelay = 750;
+  
+  while (true) {
+    btn3state = digitalRead(btn3);
+    btn4state = digitalRead(btn4);
 
-    // Change direction based on button press
-    if (btn1state == HIGH && direction != 2) direction = 4; // Up
-    if (btn2state == HIGH && direction != 4) direction = 2; // Down
-    if (btn3state == HIGH && direction != 1) direction = 3; // Left
-    if (btn4state == HIGH && direction != 3) direction = 1; // Right
+    if (btn3state == HIGH && (millis() - lastDirectionChangeTime) > debounceDelay) {
+      if(direction < 4){direction += 1;}
+      else{direction=1;}
+      lastDirectionChangeTime = millis();
+    }
+    if (btn4state == HIGH && (millis() - lastDirectionChangeTime) > debounceDelay) {
+      if(direction > 1){direction -= 1;}
+      else{direction = 4;}
+      lastDirectionChangeTime = millis();
+    }
 
-    // Move the snake in the current direction
     moveSnake();
 
-    // Check for collisions (walls or self)
     if (checkCollision()) {
       gameOver();
       return;
     }
 
-    // Check if snake eats the food
-    if (snakeX[0] == foodX && snakeY[0] == foodY) {
-      snakeLength++;
-      placeFood(); // Place new food
-    }
+    checkFoodEaten();
 
-    // Clear screen and draw snake and food
-    TFT.fillScreen(ILI9341_BLACK);
     drawSnake();
-    drawFood();
-
-    delay(100); // Control game speed
+    delay(50);
   }
 }
 
 void moveSnake() {
-  // Move the snake by shifting each segment to the position of the previous segment
+  TFT.fillRect(snakeX[snakeLength - 1], snakeY[snakeLength - 1], gridSize, gridSize, ILI9341_BLACK);
+  
   for (int i = snakeLength - 1; i > 0; i--) {
     snakeX[i] = snakeX[i - 1];
     snakeY[i] = snakeY[i - 1];
   }
 
-  // Move the head of the snake based on the current direction
   switch (direction) {
-    case 1: snakeX[0]++; break; // Right
-    case 2: snakeY[0]++; break; // Down
-    case 3: snakeX[0]--; break; // Left
-    case 4: snakeY[0]--; break; // Up
+    case 1:
+      snakeX[0]++;
+      break;
+    case 2:
+      snakeY[0]++;
+      break;
+    case 3:
+      snakeX[0]--;
+      break;
+    case 4:
+      snakeY[0]--;
+      break;
+  }
+
+  TFT.fillRect(snakeX[0], snakeY[0], gridSize, gridSize, ILI9341_GREEN);
+
+  if (snakeLength > 3) {
+    TFT.fillRect(snakeX[snakeLength - 2], snakeY[snakeLength - 2], gridSize, gridSize, ILI9341_GREEN);
+  }
+}
+
+void drawSnake() {
+  for (int i = 0; i < snakeLength; i++) {
+    TFT.fillRect(snakeX[i], snakeY[i], gridSize, gridSize, ILI9341_GREEN);
+  }
+}
+
+void checkFoodEaten() {
+  if (abs(snakeX[0] - foodX) <= gridSize && abs(snakeY[0] - foodY) <= gridSize) {
+    snakeLength += 5;
+
+    TFT.fillRect(foodX, foodY, gridSize, gridSize, ILI9341_BLACK);
+
+    drawFood();
+
+    for (int i = snakeLength - 1; i >= snakeLength - 5; i--) {
+      snakeX[i] = snakeX[snakeLength - 6];
+      snakeY[i] = snakeY[snakeLength - 6];
+    }
   }
 }
 
 bool checkCollision() {
-  // Check if the snake hits the walls
-  if (snakeX[0] < 0 || snakeX[0] >= screenWidth || snakeY[0] < 0 || snakeY[0] >= screenHeight) {
+  if (snakeX[0] < 0 || snakeX[0] + gridSize > screenWidth || snakeY[0] < 0 || snakeY[0] + gridSize > screenHeight) {
     return true;
   }
 
-  // Check if the snake hits itself
   for (int i = 1; i < snakeLength; i++) {
     if (snakeX[0] == snakeX[i] && snakeY[0] == snakeY[i]) {
       return true;
@@ -148,49 +178,48 @@ bool checkCollision() {
 }
 
 void gameOver() {
-  TFT.fillScreen(ILI9341_RED); // Game over screen
+  TFT.fillScreen(ILI9341_RED);
   TFT.setCursor(100, 100);
   TFT.setTextColor(ILI9341_WHITE);
   TFT.setTextSize(2);
   TFT.println("GAME OVER!");
-  delay(2000); // Wait for 2 seconds before returning to menu
-  menu_start(); // Go back to menu
-}
+  TFT.setTextSize(1);
+  TFT.setCursor(35, 120);
+  TFT.println("Press any button to restart or go to menu.");
+  
+  while (true) {
+    btn1state = digitalRead(btn1);
+    btn2state = digitalRead(btn2);
+    btn3state = digitalRead(btn3);
+    btn4state = digitalRead(btn4);
 
-void placeFood() {
-  // Place the food at a random location on the screen
-  foodX = random(0, screenWidth);
-  foodY = random(0, screenHeight);
-}
-
-void drawSnake() {
-  // Draw each segment of the snake
-  for (int i = 0; i < snakeLength; i++) {
-    TFT.fillRect(snakeX[i], snakeY[i], gridSize, gridSize, ILI9341_GREEN);
+    if (btn1state == HIGH || btn2state == HIGH || btn3state == HIGH || btn4state == HIGH) {
+      delay(1000);
+      menu_start();
+      break;
+    }
   }
 }
 
 void drawFood() {
-  // Draw the food
+  bool validFood = false;
+  while (!validFood) {
+    foodX = random(0, screenWidth / gridSize) * gridSize;
+    foodY = random(0, screenHeight / gridSize) * gridSize;
+
+    validFood = true;
+    for (int i = 0; i < snakeLength; i++) {
+      if (snakeX[i] == foodX && snakeY[i] == foodY) {
+        validFood = false;
+        break;
+      }
+    }
+  }
   TFT.fillRect(foodX, foodY, gridSize, gridSize, ILI9341_RED);
-}
-void game2_loop() {
-  
 }
 
 void game2_start() {
-  
-
-}
-
-
-
-
-void game3_loop() {
-  
 }
 
 void game3_start() {
-  
-
 }
