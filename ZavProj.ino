@@ -8,24 +8,40 @@
 #define TFT_CLK 46
 #define TFT_RST 49
 #define TFT_MISO 47
-const int btn1 = 45;
-const int btn2 = 44;
-const int btn3 = 43;
-const int btn4 = 42;
+const int btn1 = 18;
+const int btn2 = 19;
 const int screenWidth = 320;
 const int screenHeight = 240;
-int btn1state = 0;
-int btn2state = 0;
-int btn3state = 0;
-int btn4state = 0;
+volatile int btn1state = 0;
+volatile int btn2state = 0;
+unsigned long lastDebounceTimeBtn1 = 0;  // For debouncing btn1
+unsigned long lastDebounceTimeBtn2 = 0;  // For debouncing btn2
+unsigned long debounceDelay = 200;       // Debounce delay (in milliseconds)
 
 Adafruit_ILI9341 TFT = Adafruit_ILI9341(TFT_CS, TFT_DC, TFT_MOSI, TFT_CLK, TFT_RST, TFT_MISO);
 
+void button1_ISR() {
+  if (millis() - lastDebounceTimeBtn1 > debounceDelay) {
+    btn1state = HIGH;
+    lastDebounceTimeBtn1 = millis();
+  }
+}
+
+void button2_ISR() {
+  if (millis() - lastDebounceTimeBtn2 > debounceDelay) {
+    btn2state = HIGH;
+    lastDebounceTimeBtn2 = millis();
+  }
+}
+
 void setup() {
   Serial.begin(9600);
-  for (int j = 45; j >= 42; j--) {
-    pinMode(j, INPUT);
-  }
+  pinMode(btn1, INPUT);
+  pinMode(btn2, INPUT);
+  
+  attachInterrupt(digitalPinToInterrupt(btn1), button1_ISR, RISING);
+  attachInterrupt(digitalPinToInterrupt(btn2), button2_ISR, RISING);
+
   randomSeed(analogRead(0));
   TFT.begin();
   TFT.setRotation(1);
@@ -42,21 +58,15 @@ void menu_start() {
   TFT.println("Press Button");
 
   while (true) {
-    btn1state = digitalRead(btn1);
-    btn2state = digitalRead(btn2);
-    btn3state = digitalRead(btn3);
-    
     if (btn1state == HIGH) {
       game1_start();
-      break;
+      btn1state = LOW;
+      delay(100);
     }
     if (btn2state == HIGH) {
       game2_start();
-      break;
-    }
-    if (btn3state == HIGH) {
-      game3_start();
-      break;
+      btn2state = LOW;
+      delay(100);
     }
   }
 }
@@ -84,15 +94,15 @@ void game1_start() {
   unsigned long debounceDelay = 750;
   
   while (true) {
-    btn3state = digitalRead(btn3);
-    btn4state = digitalRead(btn4);
+    btn1state = digitalRead(btn1);
+    btn2state = digitalRead(btn2);
 
-    if (btn3state == HIGH && (millis() - lastDirectionChangeTime) > debounceDelay) {
+    if (btn1state == HIGH && (millis() - lastDirectionChangeTime) > debounceDelay) {
       if(direction < 4){direction += 1;}
       else{direction=1;}
       lastDirectionChangeTime = millis();
     }
-    if (btn4state == HIGH && (millis() - lastDirectionChangeTime) > debounceDelay) {
+    if (btn2state == HIGH && (millis() - lastDirectionChangeTime) > debounceDelay) {
       if(direction > 1){direction -= 1;}
       else{direction = 4;}
       lastDirectionChangeTime = millis();
@@ -190,10 +200,8 @@ void gameOver() {
   while (true) {
     btn1state = digitalRead(btn1);
     btn2state = digitalRead(btn2);
-    btn3state = digitalRead(btn3);
-    btn4state = digitalRead(btn4);
 
-    if (btn1state == HIGH || btn2state == HIGH || btn3state == HIGH || btn4state == HIGH) {
+    if (btn1state == HIGH || btn2state == HIGH) {
       delay(1000);
       menu_start();
       break;
@@ -238,15 +246,15 @@ void game2_start() {
   int paddle1T, paddle2T;
 
   while (true) {
-    btn3state = digitalRead(btn3);
-    btn4state = digitalRead(btn4);
+    btn1state = digitalRead(btn1);
+    btn2state = digitalRead(btn2);
 
-    if (btn4state == HIGH) {
+    if (btn2state == HIGH) {
       paddle1DirectionUp = !paddle1DirectionUp;
       delay(10); 
     }
 
-    if (btn3state == HIGH) {
+    if (btn1state == HIGH) {
       paddle2DirectionUp = !paddle2DirectionUp;
       delay(10);
     }
@@ -266,7 +274,7 @@ void game2_start() {
     }
 
     moveBall(paddle1Y, paddle2Y);
-    checkCollisions(ballX, ballY, paddle1Y, paddle2Y);
+    checkBallCollisions(ballX, ballY, paddle1Y, paddle2Y);
     drawPaddles(paddle1T,paddle1Y,paddle2T,paddle2Y);
     drawBall();
 
@@ -303,7 +311,7 @@ void drawBall() {
   TFT.fillRect(ballX, ballY, ballSize, ballSize, ILI9341_WHITE);
 }
 
-void checkCollisions(int ballX,int ballY,int paddle1Y,int paddle2Y) {
+void checkBallCollisions(int ballX,int ballY,int paddle1Y,int paddle2Y) {
   if (ballX <= paddleWidth && ballY >= paddle1Y && ballY <= paddle1Y + paddleHeight) {
     ballSpeedX = -ballSpeedX;
   }
