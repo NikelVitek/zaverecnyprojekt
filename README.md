@@ -22,6 +22,7 @@ Tento repozitář obsahuje několik jednoduchých her napsaných pro platformu A
 - Arduino kompatibilní deska.
 - TFT displej s rozlišením 320x240.
 - Čtyři tlačítka pro ovládání.
+- 7 Resistorů 10K
 
 ## Instalace a spuštění
 
