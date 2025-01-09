@@ -38,10 +38,8 @@ Tento repozitář obsahuje několik jednoduchých her napsaných pro platformu A
      - RST: Pin 49  
      - MISO: Pin 47
    - **Tlačítka**:
-     - Tlačítko 1: Pin 45
-     - Tlačítko 2: Pin 44
-     - Tlačítko 3: Pin 43
-     - Tlačítko 4: Pin 42
+     - Tlačítko 1: Pin 18
+     - Tlačítko 2: Pin 19
 
 3. Nahrajte kód do Arduino desky.
 
@@ -50,12 +48,12 @@ Tento repozitář obsahuje několik jednoduchých her napsaných pro platformu A
 ## Ovládání
 
 - **Snake Game**:  
-  - Tlačítko 3: Změna směru doprava.  
-  - Tlačítko 4: Změna směru doleva.
+  - Tlačítko 1: Změna směru doprava.  
+  - Tlačítko 2: Změna směru doleva.
 
 - **Pong Game**:  
-  - Tlačítko 3: Pohyb levé pálky nahoru/dolů.  
-  - Tlačítko 4: Pohyb pravé pálky nahoru/dolů.
+  - Tlačítko 1: Pohyb levé pálky nahoru/dolů.  
+  - Tlačítko 2: Pohyb pravé pálky nahoru/dolů.
 
 ## Autor
 
