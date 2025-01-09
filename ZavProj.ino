@@ -218,7 +218,103 @@ void drawFood() {
   TFT.fillRect(foodX, foodY, gridSize, gridSize, ILI9341_RED);
 }
 
+int ballSpeedX = 2;
+int ballSpeedY = 2;
+int paddleWidth = 5;
+int paddleHeight = 20;
+int ballSize = 5;
+int ballX = 160;
+int ballY = 120;
+
+bool paddle1DirectionUp = true; 
+bool paddle2DirectionUp = true; 
+
 void game2_start() {
+  TFT.setTextColor(ILI9341_BLACK);
+  TFT.setCursor(120, 120);
+  TFT.println("Press Button");
+  int paddle1Y = 100;
+  int paddle2Y = 100;
+  int paddle1T, paddle2T;
+
+  while (true) {
+    btn3state = digitalRead(btn3);
+    btn4state = digitalRead(btn4);
+
+    if (btn4state == HIGH) {
+      paddle1DirectionUp = !paddle1DirectionUp;
+      delay(10); 
+    }
+
+    if (btn3state == HIGH) {
+      paddle2DirectionUp = !paddle2DirectionUp;
+      delay(10);
+    }
+
+    paddle1T = paddle1Y;
+    if (paddle1DirectionUp && paddle1Y > 0) {
+      paddle1Y -= 5;
+    } else if (!paddle1DirectionUp && paddle1Y < screenHeight - paddleHeight) {
+      paddle1Y += 5;
+    }
+
+    paddle2T = paddle2Y;
+    if (paddle2DirectionUp && paddle2Y > 0) {
+      paddle2Y -= 5;
+    } else if (!paddle2DirectionUp && paddle2Y < screenHeight - paddleHeight) {
+      paddle2Y += 5;
+    }
+
+    moveBall(paddle1Y, paddle2Y);
+    checkCollisions(ballX, ballY, paddle1Y, paddle2Y);
+    drawPaddles(paddle1T,paddle1Y,paddle2T,paddle2Y);
+    drawBall();
+
+    delay(100);
+  }
+}
+
+void moveBall(int paddle2Y, int paddle1Y) {
+  TFT.fillRect(ballX, ballY, ballSize, ballSize, ILI9341_BLACK);
+  ballX += ballSpeedX;
+  ballY += ballSpeedY;
+
+  if (ballY <= 0 || ballY + ballSize >= screenHeight) {
+    ballSpeedY = -ballSpeedY;
+  }
+
+  if (ballX <= paddleWidth && ballY >= paddle1Y && ballY <= paddle1Y + paddleHeight) {
+    ballSpeedX = -ballSpeedX;
+  }
+
+  if (ballX >= screenWidth - ballSize - paddleWidth && ballY >= paddle2Y && ballY <= paddle2Y + paddleHeight) {
+    ballSpeedX = -ballSpeedX;
+  }
+}
+
+void drawPaddles(int paddle1T,int paddle1Y,int paddle2T,int paddle2Y) {
+  TFT.fillRect(0, paddle1T, paddleWidth, paddleHeight, ILI9341_BLACK);
+  TFT.fillRect(screenWidth - paddleWidth, paddle2T, paddleWidth, paddleHeight, ILI9341_BLACK);
+  TFT.fillRect(0, paddle1Y, paddleWidth, paddleHeight, ILI9341_GREEN);
+  TFT.fillRect(screenWidth - paddleWidth, paddle2Y, paddleWidth, paddleHeight, ILI9341_GREEN);
+}
+
+void drawBall() {
+  TFT.fillRect(ballX, ballY, ballSize, ballSize, ILI9341_WHITE);
+}
+
+void checkCollisions(int ballX,int ballY,int paddle1Y,int paddle2Y) {
+  if (ballX <= paddleWidth && ballY >= paddle1Y && ballY <= paddle1Y + paddleHeight) {
+    ballSpeedX = -ballSpeedX;
+  }
+
+  if (ballX >= screenWidth - ballSize - paddleWidth && ballY >= paddle2Y && ballY <= paddle2Y + paddleHeight) {
+    ballSpeedX = -ballSpeedX;
+  }
+
+  if (ballY <= 0 || ballY + ballSize >= screenHeight) {
+    ballSpeedY = -ballSpeedY;
+  }
 }
 
 void game3_start() {
