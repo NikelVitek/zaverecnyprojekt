@@ -357,8 +357,8 @@ void moveBall(int paddle1T, int paddle2T) {
     player2Score++;
 
     if(player2Score>=5){
-      TFT.fillRect(0, paddle1T, paddleWidth, paddleHeight, ILI9341_BLACK);
-      TFT.fillRect(screenWidth - paddleWidth, paddle2T, paddleWidth, paddleHeight, ILI9341_BLACK);
+      TFT.fillRect(0, paddle1T-5, paddleWidth, paddleHeight+5, ILI9341_BLACK);
+      TFT.fillRect(screenWidth - paddleWidth, paddle2T-5, paddleWidth, paddleHeight+5, ILI9341_BLACK);
       TFT.fillRect(ballX, ballY, ballSize, ballSize, ILI9341_BLACK);
       gameOver(2);
     }
@@ -370,8 +370,8 @@ void moveBall(int paddle1T, int paddle2T) {
   if (ballX >= screenWidth) {
     player1Score++;
     if(player1Score>=5){
-      TFT.fillRect(0, paddle1T, paddleWidth, paddleHeight, ILI9341_BLACK);
-      TFT.fillRect(screenWidth - paddleWidth, paddle2T, paddleWidth, paddleHeight, ILI9341_BLACK);
+      TFT.fillRect(0, paddle1T-5, paddleWidth, paddleHeight+5, ILI9341_BLACK);
+      TFT.fillRect(screenWidth - paddleWidth, paddle2T-5, paddleWidth, paddleHeight+5, ILI9341_BLACK);
       TFT.fillRect(ballX, ballY, ballSize, ballSize, ILI9341_BLACK);
       gameOver(2);
     }
