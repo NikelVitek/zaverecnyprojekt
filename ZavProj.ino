@@ -3,11 +3,11 @@
 #include "Adafruit_ILI9341.h"
 
 #define TFT_DC 48
-#define TFT_CS 50
-#define TFT_MOSI 51
-#define TFT_CLK 46
-#define TFT_RST 49
-#define TFT_MISO 47
+#define TFT_CS 46
+#define TFT_MOSI 49
+#define TFT_CLK 50
+#define TFT_RST 47
+#define TFT_MISO 51
 const int btn1 = 18;
 const int btn2 = 19;
 const int screenWidth = 320;
@@ -25,14 +25,14 @@ Adafruit_ILI9341 TFT = Adafruit_ILI9341(TFT_CS, TFT_DC, TFT_MOSI, TFT_CLK, TFT_R
 
 
 void button1_ISR() {
-  if (millis() - lastDebounceTimeBtn1 > debounceDelay) {
+  if (millis() - lastDebounceTimeBtn1 > debounceDelay && digitalRead(btn1) == HIGH) {
     btn1state = HIGH;
     lastDebounceTimeBtn1 = millis();
   }
 }
 
 void button2_ISR() {
-  if (millis() - lastDebounceTimeBtn2 > debounceDelay) {
+  if (millis() - lastDebounceTimeBtn2 > debounceDelay && digitalRead(btn2) == HIGH) {
     btn2state = HIGH;
     lastDebounceTimeBtn2 = millis();
   }
@@ -125,17 +125,18 @@ void game1_start() {
     moveSnake(snakeLength);
 
     if (checkCollision(snakeLength)) {
-      gameOver(1);
+      gameOver(1, snakeLength);
       return;
     }
 
     snakeLength = checkFoodEaten(snakeLength);
     drawSnake(snakeLength);
-    delay(40);
+    delay(20);
   }
 }
 
 void moveSnake(int snakeLength) {
+
   TFT.fillRect(snakeX[snakeLength - 1], snakeY[snakeLength - 1], gridSize, gridSize, ILI9341_BLACK);
   
   for (int i = snakeLength - 1; i > 0; i--) {
@@ -196,13 +197,16 @@ bool checkCollision(int snakeLength) {
   return false;
 }
 
-void gameOver(int game) {
+void gameOver(int game, int snakeLength) {
   TFT.setTextSize(2);
   TFT.setCursor(100, 100);
   TFT.setTextColor(ILI9341_WHITE);
   switch(game){
     case 1:
-      TFT.fillScreen(ILI9341_RED);
+      for (int i = 0; i < snakeLength; i++) {
+        TFT.fillRect(snakeX[i], snakeY[i], gridSize, gridSize, ILI9341_BLACK);
+      }
+      TFT.fillRect(foodX, foodY, gridSize, gridSize, ILI9341_BLACK);
       TFT.println("GAME OVER!");
       TFT.setTextSize(1);
       TFT.setCursor(98, 120);
@@ -263,7 +267,7 @@ void drawFood(int snakeLength) {
 }
 
 
-int ballSpeedX = (random(0,2)) ? 6 : -6;
+int ballSpeedX = (random(0,2)) ? 3 : -3;
 int ballSpeedY = (random(0,2)) ? random(-1,-5) : random(1, 5);
 int paddleWidth = 5;
 int paddleHeight = 20;
@@ -301,23 +305,23 @@ void game2_start() {
 
     paddle1T = paddle1Y;
     if (paddle1DirectionUp && paddle1Y > 0) {
-      paddle1Y -= 5;
+      paddle1Y -= 3;
     } else if (!paddle1DirectionUp && paddle1Y < screenHeight - paddleHeight) {
-      paddle1Y += 5;
+      paddle1Y += 3;
     }
 
     paddle2T = paddle2Y;
 
     if (paddle2DirectionUp && paddle2Y > 0) {
-      paddle2Y -= 5;
+      paddle2Y -= 3;
     } else if (!paddle2DirectionUp && paddle2Y < screenHeight - paddleHeight) {
-      paddle2Y += 5;
+      paddle2Y += 3;
     }
 
     drawPaddles(paddle1T,paddle2T);
     moveBall(paddle1T, paddle2T);
     Serial.println(paddle2Y);
-    delay(40);
+    delay(20);
   }
 }
 
@@ -344,23 +348,23 @@ void moveBall(int paddle1T, int paddle2T) {
   if (ballX <= paddleWidth && ballY >= paddle1Y && ballY <= paddle1Y + paddleHeight) {
     ballSpeedX = -ballSpeedX;
     ballSpeedY += random(-5, 5);
-    delay(25);
+    ballX += 2;
   }
 
   if (ballX >= screenWidth - ballSize - paddleWidth && ballY >= paddle2Y && ballY <= paddle2Y + paddleHeight) {
     ballSpeedX = -ballSpeedX;
     ballSpeedY += random(-5, 5);
-    delay(25);
+    ballX -= 2;
   }
 
   if (ballX <= 0) {
     player2Score++;
 
     if(player2Score>=5){
-      TFT.fillRect(0, paddle1T-5, paddleWidth, paddleHeight+5, ILI9341_BLACK);
-      TFT.fillRect(screenWidth - paddleWidth, paddle2T-5, paddleWidth, paddleHeight+5, ILI9341_BLACK);
+      TFT.fillRect(0, paddle1T-10, paddleWidth, paddleHeight+10, ILI9341_BLACK);
+      TFT.fillRect(screenWidth - paddleWidth, paddle2T-10, paddleWidth, paddleHeight+10, ILI9341_BLACK);
       TFT.fillRect(ballX, ballY, ballSize, ballSize, ILI9341_BLACK);
-      gameOver(2);
+      gameOver(2,0);
     }
     else{
     resetGame(paddle1Y, paddle2Y);
@@ -370,10 +374,10 @@ void moveBall(int paddle1T, int paddle2T) {
   if (ballX >= screenWidth) {
     player1Score++;
     if(player1Score>=5){
-      TFT.fillRect(0, paddle1T-5, paddleWidth, paddleHeight+5, ILI9341_BLACK);
-      TFT.fillRect(screenWidth - paddleWidth, paddle2T-5, paddleWidth, paddleHeight+5, ILI9341_BLACK);
+      TFT.fillRect(0, paddle1T-10, paddleWidth, paddleHeight+10, ILI9341_BLACK);
+      TFT.fillRect(screenWidth - paddleWidth, paddle2T-10, paddleWidth, paddleHeight+10, ILI9341_BLACK);
       TFT.fillRect(ballX, ballY, ballSize, ballSize, ILI9341_BLACK);
-      gameOver(2);
+      gameOver(2,0);
     }
     else{
     resetGame(paddle1Y, paddle2Y);
@@ -385,7 +389,7 @@ void moveBall(int paddle1T, int paddle2T) {
 void resetGame(int paddle1T,int paddle2T){
     ballX = 160;
     ballY = 120;
-    ballSpeedX = (random(0,2)) ? 6 : -6;
+    ballSpeedX = (random(0,2)) ? 3 : -3;
     ballSpeedY = (random(0,2)) ? random(-1,-4) : random(1, 4);
     paddle1Y = 100;
     paddle2Y = 100;

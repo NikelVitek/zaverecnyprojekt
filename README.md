@@ -1,28 +1,28 @@
 # Závěrečný projekt - Hry na Arduino
 
-Tento repozitář obsahuje několik jednoduchých her napsaných pro platformu Arduino. Hry jsou ovládány pomocí tlačítek a zobrazují se na TFT displeji. Cílem je vytvořit interaktivní hry, které využívají základní prvky programování, jako je zpracování vstupů, grafika a detekce kolizí.
+Tento repozitář obsahuje několik jednoduchých her napsaných pro platformu Arduino. Hry jsou ovládány pomocí tlačítek a zobrazují se na TFT displeji. Cílem je vytvořit interaktivní hry, které využívají základní programovací prvky, jako je zpracování vstupů, grafika a detekce kolizí.
 
 ## Obsah
 
-- **Snake Game**  
-  Klasická hra, kde hráč ovládá hada, který roste po sežrání jídla. Cílem je vyhnout se kolizi s vlastním tělem a stěnami displeje. Hra obsahuje následující funkce:
-  - Generování jídla na náhodných pozicích.
-  - Ovládání směru pohybu hada pomocí tlačítek.
-  - Zvýšení obtížnosti díky rostoucí délce hada.
-  - Detekce kolize se stěnami nebo vlastním tělem, která ukončuje hru.
+### **Snake Game**
+Klasická hra, kde hráč ovládá hada, který roste po sežrání jídla. Cílem je vyhnout se kolizi s vlastním tělem a stěnami displeje. Hra obsahuje následující funkce:
+- Generování jídla na náhodných pozicích.
+- Ovládání směru pohybu hada pomocí tlačítek.
+- Zvýšení obtížnosti díky rostoucí délce hada.
+- Detekce kolize se stěnami nebo vlastním tělem, která ukončuje hru.
 
-- **Pong Game**  
-  Hra pro dva hráče, která simuluje stolní tenis. Každý hráč ovládá svoji pálku a snaží se odrazit míček. Hra zahrnuje:
-  - Pohyb pálky hráče nahoru a dolů pomocí tlačítek.
-  - Odraz míčku od pálek a okrajů displeje.
-  - Detekci skóre při zmeškání míčku.
+### **Pong Game**
+Hra pro dva hráče, která simuluje stolní tenis. Každý hráč ovládá svoji pálku a snaží se odrazit míček. Hra zahrnuje:
+- Pohyb pálky hráče nahoru a dolů pomocí tlačítek.
+- Odraz míčku od pálek a okrajů displeje.
+- Detekce skóre při zmeškání míčku.
 
 ## Hardware
 
-- Arduino kompatibilní deska.
-- TFT displej s rozlišením 320x240.
-- Čtyři tlačítka pro ovládání.
-- 7 Resistorů 10K
+- **Arduino kompatibilní deska** (např. Arduino Uno, Nano, nebo jiné).
+- **TFT displej** s rozlišením 320x240 (např. ILI9341).
+- **Čtyři tlačítka** pro ovládání.
+- **7 rezistorů 10KΩ** pro tlačítka.
 
 ## Instalace a spuštění
 
@@ -31,13 +31,13 @@ Tento repozitář obsahuje několik jednoduchých her napsaných pro platformu A
    - [Adafruit ILI9341](https://github.com/adafruit/Adafruit_ILI9341)
 
 2. Připojte hardware podle následujícího schématu:
-   - **TFT displej**: 
+   - **TFT displej**:
      - DC: Pin 48  
-     - CS: Pin 50  
-     - MOSI: Pin 51  
-     - CLK: Pin 46  
-     - RST: Pin 49  
-     - MISO: Pin 47
+     - CS: Pin 46  
+     - MOSI: Pin 49  
+     - CLK: Pin 50  
+     - RST: Pin 47  
+     - MISO: Pin 51
    - **Tlačítka**:
      - Tlačítko 1: Pin 18
      - Tlačítko 2: Pin 19
