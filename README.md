@@ -21,7 +21,7 @@ Hra pro dva hráče, která simuluje stolní tenis. Každý hráč ovládá svoj
 
 - **Arduino kompatibilní deska** (např. Arduino Uno, Nano, nebo jiné).
 - **TFT displej** s rozlišením 320x240 (např. ILI9341).
-- **Čtyři tlačítka** pro ovládání.
+- **Dvě tlačítka** pro ovládání.
 - **7 rezistorů 10KΩ** pro tlačítka.
 
 ## Instalace a spuštění
