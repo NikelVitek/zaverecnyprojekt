@@ -319,10 +319,6 @@ void game2_start() {
     }
     moveBall(paddle1T, paddle2T);
     drawPaddles(paddle1T,paddle2T);
-      Serial.print("Draw: Paddle1T:  ");
-      Serial.print(paddle1T);
-      Serial.print("    Paddle1Y: ");
-      Serial.println(paddle1Y);
     delay(20);
   }
 }
@@ -363,10 +359,6 @@ void moveBall(int paddle1T, int paddle2T) {
     player2Score++;
 
     if(player2Score>=5){
-      Serial.print("End: Paddle1T:  ");
-      Serial.print(paddle1T);
-      Serial.print("    Paddle1Y: ");
-      Serial.println(paddle1Y);
       TFT.fillRect(0, paddle1Y-40, paddleWidth, paddleHeight+40, ILI9341_BLACK);
       TFT.fillRect(screenWidth - paddleWidth, paddle2Y-40, paddleWidth, paddleHeight+40, ILI9341_BLACK);
       TFT.fillRect(ballX, ballY, ballSize, ballSize, ILI9341_BLACK);
@@ -380,10 +372,6 @@ void moveBall(int paddle1T, int paddle2T) {
   if (ballX >= screenWidth) {
     player1Score++;
     if(player1Score>=5){
-      Serial.print("End: Paddle1T:  ");
-      Serial.print(paddle1T);
-      Serial.print("    Paddle1Y: ");
-      Serial.println(paddle1Y);
       TFT.fillRect(0, paddle1Y-40, paddleWidth, paddleHeight+40, ILI9341_BLACK);
       TFT.fillRect(screenWidth - paddleWidth, paddle2Y-40, paddleWidth, paddleHeight+40, ILI9341_BLACK);
       TFT.fillRect(ballX, ballY, ballSize, ballSize, ILI9341_BLACK);
